@@ -1,0 +1,105 @@
+<odoo>
+
+    <!-- Vue Kanban (utilisée dans le tableau de bord et "Mes demandes") -->
+    <record id="view_adk_sro_kanban" model="ir.ui.view">
+        <field name="name">adk.stock.request.order.kanban</field>
+        <field name="model">adk.stock.request.order</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="state"/>
+                <field name="progress"/>
+                <field name="is_late"/>
+                <field name="expected_date"/>
+                <field name="warehouse_id"/>
+                <field name="demandeur_id"/>
+                <field name="sortie_status"/>
+                <field name="reception_status"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="d-flex justify-content-between">
+                                <strong><field name="name"/></strong>
+                                <field name="demandeur_id" widget="many2one_avatar_user"/>
+                            </div>
+                            <div class="text-muted">
+                                <field name="warehouse_id"/>
+                            </div>
+                            <div t-if="record.is_late.raw_value" class="badge text-bg-danger mt-1">En retard</div>
+                            <div class="mt-2">
+                                <field name="progress" widget="progressbar"/>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border-top pt-1 mt-2 small">
+                                <span class="text-muted"><i class="fa fa-sign-out me-1"/>Sortie</span>
+                                <span t-if="record.sortie_status.raw_value == 'done'" class="badge text-bg-secondary">
+                                    <field name="sortie_status"/>
+                                </span>
+                                <span t-elif="record.sortie_status.raw_value == 'pret'" class="badge text-bg-success">
+                                    <field name="sortie_status"/>
+                                </span>
+                                <span t-elif="record.sortie_status.raw_value == 'en_attente'" class="badge text-bg-warning">
+                                    <field name="sortie_status"/>
+                                </span>
+                                <span t-else="" class="text-muted fst-italic">—</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center small">
+                                <span class="text-muted"><i class="fa fa-sign-in me-1"/>Réception</span>
+                                <span t-if="record.reception_status.raw_value == 'done'" class="badge text-bg-secondary">
+                                    <field name="reception_status"/>
+                                </span>
+                                <span t-elif="record.reception_status.raw_value == 'pret'" class="badge text-bg-success">
+                                    <field name="reception_status"/>
+                                </span>
+                                <span t-elif="record.reception_status.raw_value == 'en_attente'" class="badge text-bg-warning">
+                                    <field name="reception_status"/>
+                                </span>
+                                <span t-else="" class="text-muted fst-italic">—</span>
+                            </div>
+                            <div class="text-muted small mt-2">
+                                Prévu le <field name="expected_date"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Vue Liste : demandes en retard -->
+    <record id="view_adk_sro_late_list" model="ir.ui.view">
+        <field name="name">adk.stock.request.order.late.list</field>
+        <field name="model">adk.stock.request.order</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="is_late == True">
+                <field name="name"/>
+                <field name="demandeur_id"/>
+                <field name="warehouse_id"/>
+                <field name="expected_date"/>
+                <field name="progress" widget="progressbar"/>
+                <field name="state" widget="badge"/>
+                <field name="is_late" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action : Mes demandes (kanban) -->
+    <record id="action_adk_sro_my" model="ir.actions.act_window">
+        <field name="name">Mes demandes</field>
+        <field name="res_model">adk.stock.request.order</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('demandeur_id', '=', uid)]</field>
+        <field name="context">{'search_default_demandeur_id': uid, 'search_disable_custom_filters': True}</field>
+        <field name="search_view_id" ref="view_adk_sro_search"/>
+    </record>
+
+    <!-- Action : Demandes en retard -->
+    <record id="action_adk_sro_late" model="ir.actions.act_window">
+        <field name="name">Demandes en retard</field>
+        <field name="res_model">adk.stock.request.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_late', '=', True)]</field>
+        <field name="context">{'search_disable_custom_filters': True}</field>
+        <field name="search_view_id" ref="view_adk_sro_search"/>
+    </record>
+
+</odoo>

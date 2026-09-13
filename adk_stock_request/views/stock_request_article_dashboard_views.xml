@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Recherche : article, demande de stock, entrepôt, période, états SORTIE / RÉCEPTION -->
+    <record id="view_adk_srl_search" model="ir.ui.view">
+        <field name="name">adk.stock.request.line.search</field>
+        <field name="model">adk.stock.request.line</field>
+        <field name="arch" type="xml">
+            <search string="Recherche des articles">
+                <field name="product_id" string="Article"/>
+                <field name="order_id" string="N° Demande de stock"/>
+                <field name="warehouse_id" string="Entrepôt"/>
+                <filter string="Période (date de la demande)" name="filter_request_period" date="request_date"
+                        default_period="year,month"/>
+                <separator/>
+                <filter string="Brouillon" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Soumis" name="filter_submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="En cours" name="filter_in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Terminé" name="filter_done" domain="[('state', '=', 'done')]"/>
+                <filter string="Annulé" name="filter_cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter string="Sortie prête" name="filter_sortie_pret" domain="[('sortie_status', '=', 'pret')]"/>
+                <filter string="Sortie en attente" name="filter_sortie_attente" domain="[('sortie_status', '=', 'en_attente')]"/>
+                <filter string="Réception prête" name="filter_reception_pret" domain="[('reception_status', '=', 'pret')]"/>
+                <filter string="Réception en attente" name="filter_reception_attente" domain="[('reception_status', '=', 'en_attente')]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="Article" name="group_product" context="{'group_by': 'product_id'}"/>
+                    <filter string="Demande de stock" name="group_order" context="{'group_by': 'order_id'}"/>
+                    <filter string="Entrepôt" name="group_warehouse" context="{'group_by': 'warehouse_id'}"/>
+                    <filter string="État de la demande" name="group_state" context="{'group_by': 'state'}"/>
+                    <separator/>
+                    <filter string="Jour" name="group_day" context="{'group_by': 'request_date:day'}"/>
+                    <filter string="Mois" name="group_month" context="{'group_by': 'request_date:month'}"/>
+                    <filter string="Trimestre" name="group_quarter" context="{'group_by': 'request_date:quarter'}"/>
+                    <filter string="Année" name="group_year" context="{'group_by': 'request_date:year'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Kanban : cartes par article avec états SORTIE et RÉCEPTION -->
+    <record id="view_adk_srl_kanban" model="ir.ui.view">
+        <field name="name">adk.stock.request.line.kanban</field>
+        <field name="model">adk.stock.request.line</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_small_column" records_per_row="3">
+                <field name="product_id"/>
+                <field name="order_id"/>
+                <field name="state"/>
+                <field name="warehouse_id"/>
+                <field name="sortie_status"/>
+                <field name="reception_status"/>
+                <field name="qty"/>
+                <field name="sortie_qty_done"/>
+                <field name="reception_qty_done"/>
+                <field name="available_qty"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click d-flex flex-column h-100">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <div class="text-truncate">
+                                    <span class="fw-semibold text-primary">
+                                        <field name="product_id"/>
+                                    </span>
+                                </div>
+                                <span t-attf-class="badge {{ record.state.raw_value == 'draft' and 'text-bg-secondary' or record.state.raw_value == 'submitted' and 'text-bg-warning' or record.state.raw_value == 'in_progress' and 'text-bg-info' or record.state.raw_value == 'done' and 'text-bg-success' or 'text-bg-danger' }}">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+                            <div class="text-muted small mb-2">
+                                <i class="fa fa-file-text-o me-1"/><span class="fw-semibold"><field name="order_id"/></span>
+                                <t t-if="record.warehouse_id.value">
+                                    <span class="mx-1">·</span>
+                                    <i class="fa fa-building-o me-1"/>
+                                    <span><field name="warehouse_id"/></span>
+                                </t>
+                            </div>
+                            <div class="row g-1 text-center small my-1">
+                                <div class="col-4">
+                                    <div class="border rounded-3 py-2 bg-light">
+                                        <div class="fw-bold"><field name="qty"/></div>
+                                        <div class="text-muted">Demandé</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded-3 py-2 bg-light">
+                                        <div class="fw-bold text-info"><field name="sortie_qty_done"/></div>
+                                        <div class="text-muted">Sortie</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded-3 py-2 bg-light">
+                                        <div class="fw-bold text-success"><field name="reception_qty_done"/></div>
+                                        <div class="text-muted">Réception</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center border-top pt-1 mt-2 mb-1 small">
+                                    <span class="text-muted"><i class="fa fa-sign-out me-1"/>Sortie</span>
+                                    <span t-if="record.sortie_status.raw_value == 'done'" class="badge text-bg-secondary">
+                                        <field name="sortie_status"/>
+                                    </span>
+                                    <span t-elif="record.sortie_status.raw_value == 'pret'" class="badge text-bg-success">
+                                        <field name="sortie_status"/>
+                                    </span>
+                                    <span t-elif="record.sortie_status.raw_value == 'en_attente'" class="badge text-bg-warning">
+                                        <field name="sortie_status"/>
+                                    </span>
+                                    <span t-else="" class="text-muted fst-italic">—</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <span class="text-muted"><i class="fa fa-sign-in me-1"/>Réception</span>
+                                    <span t-if="record.reception_status.raw_value == 'done'" class="badge text-bg-secondary">
+                                        <field name="reception_status"/>
+                                    </span>
+                                    <span t-elif="record.reception_status.raw_value == 'pret'" class="badge text-bg-success">
+                                        <field name="reception_status"/>
+                                    </span>
+                                    <span t-elif="record.reception_status.raw_value == 'en_attente'" class="badge text-bg-warning">
+                                        <field name="reception_status"/>
+                                    </span>
+                                    <span t-else="" class="text-muted fst-italic">—</span>
+                                </div>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                <i class="fa fa-cubes me-1"/>Disponible : <field name="available_qty"/>
+                                <t t-if="record.sortie_status.raw_value == 'en_attente'">
+                                    <br/>En attente d'approvisionnement
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Pivot : articles / demandes avec quantités et statuts -->
+    <record id="view_adk_srl_pivot" model="ir.ui.view">
+        <field name="name">adk.stock.request.line.pivot</field>
+        <field name="model">adk.stock.request.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse par article">
+                <field name="order_id" type="row" string="N° Demande"/>
+                <field name="product_id" type="row" string="Article"/>
+                <field name="request_date" type="col"/>
+                <field name="qty" type="measure" string="Qté demandée"/>
+                <field name="sortie_qty_done" type="measure" string="Qté sortie"/>
+                <field name="reception_qty_done" type="measure" string="Qté réceptionnée"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph : tendances par période, réparties par article -->
+    <record id="view_adk_srl_graph" model="ir.ui.view">
+        <field name="name">adk.stock.request.line.graph</field>
+        <field name="model">adk.stock.request.line</field>
+        <field name="arch" type="xml">
+            <graph string="Évolution des quantités" type="bar" stacked="true">
+                <field name="request_date" type="col" interval="month"/>
+                <field name="product_id" type="row"/>
+                <field name="qty" type="measure" string="Qté demandée"/>
+                <field name="sortie_qty_done" type="measure" string="Qté sortie"/>
+                <field name="reception_qty_done" type="measure" string="Qté réceptionnée"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Liste : détail avec états SORTIE / RÉCEPTION -->
+    <record id="view_adk_srl_list" model="ir.ui.view">
+        <field name="name">adk.stock.request.line.list</field>
+        <field name="model">adk.stock.request.line</field>
+        <field name="arch" type="xml">
+            <list string="Articles demandés" create="false" edit="false" delete="false"
+                  decoration-success="reception_status == 'done'"
+                  decoration-info="sortie_status == 'pret' or reception_status == 'pret'">
+                <field name="order_id" string="N° Demande de stock"/>
+                <field name="request_date" string="Date"/>
+                <field name="product_id" string="Article"/>
+                <field name="warehouse_id" string="Entrepôt"/>
+                <field name="qty" string="Qté demandée"/>
+                <field name="sortie_qty_done" string="Qté sortie"/>
+                <field name="reception_qty_done" string="Qté réceptionnée"/>
+                <field name="available_qty" string="Disponible"/>
+                <field name="sortie_status" string="Sortie" widget="badge"
+                       decoration-success="sortie_status == 'pret'"
+                       decoration-warning="sortie_status == 'en_attente'"
+                       decoration-muted="sortie_status == 'done'"/>
+                <field name="reception_status" string="Réception" widget="badge"
+                       decoration-success="reception_status == 'pret'"
+                       decoration-warning="reception_status == 'en_attente'"
+                       decoration-muted="reception_status == 'done'"/>
+                <field name="state" string="État demande" widget="badge" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action du tableau de bord par article -->
+    <record id="action_adk_sro_article_dashboard" model="ir.actions.act_window">
+        <field name="name">Tableau de bord par article</field>
+        <field name="res_model">adk.stock.request.line</field>
+        <field name="view_mode">kanban,graph,pivot,list</field>
+        <field name="search_view_id" ref="view_adk_srl_search"/>
+        <field name="context">{'search_default_group_year': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun article demandé
+            </p>
+            <p>
+                Les articles apparaissent dès qu'une demande de stock possède au moins une ligne.
+                Chaque article affiche ses deux transferts dédiés : la SORTIE (prête dès que le
+                produit est en stock) et la RÉCEPTION (prête dès que la SORTIE est validée).
+            </p>
+        </field>
+    </record>
+
+</odoo>

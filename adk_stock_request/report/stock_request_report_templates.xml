@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<template id="report_adk_stock_request_document">
+		<t t-call="web.external_layout">
+			<!-- Correction Odoo 18 : Sécurisation de la langue pour éviter le KeyError ir.qweb -->
+			<t t-set="o" t-value="o.with_context(lang=o.demandeur_id.lang or env.lang)"/>
+			<div class="page">
+				<h2>
+					Demande de Stock <span t-field="o.name"/>
+				</h2>
+
+				<!-- Correction Bootstrap 5 (mt-4 mb-4 au lieu de mt32 mb32) -->
+				<div class="row mt-4 mb-4">
+					<div class="col-4">
+						<strong>Demandeur</strong>
+						<p t-field="o.demandeur_id.name"/>
+					</div>
+					<div class="col-4">
+						<strong>Entrepôt</strong>
+						<p t-field="o.warehouse_id.name"/>
+						<strong>Emplacement destination</strong>
+						<p t-field="o.location_id.complete_name"/>
+					</div>
+					<div class="col-4">
+						<strong>Date prévue</strong>
+						<p t-field="o.expected_date"/>
+						<strong>État</strong>
+						<p t-field="o.state"/>
+					</div>
+				</div>
+
+				<table class="table table-sm o_main_table">
+					<thead>
+						<tr>
+							<th>Article</th>
+							<th class="text-end">Quantité demandée</th>
+							<th>Unité</th>
+							<th class="text-end">Quantité traitée</th>
+							<th>Statut</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr t-foreach="o.line_ids" t-as="line">
+							<!-- Encapsulation stricte dans des spans pour la stabilité du rendu -->
+							<td>
+								<span t-field="line.product_id.display_name"/>
+							</td>
+							<td class="text-end">
+								<span t-field="line.qty"/>
+							</td>
+							<td>
+								<span t-field="line.product_uom_id.name"/>
+							</td>
+							<td class="text-end">
+								<span t-field="line.qty_done"/>
+							</td>
+							<td>
+								<span t-field="line.status"/>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="row mt-4" t-if="o.description">
+					<div class="col-12">
+						<strong>Notes</strong>
+						<p t-field="o.description"/>
+					</div>
+				</div>
+			</div>
+		</t>
+	</template>
+
+	<template id="report_adk_stock_request">
+		<t t-call="web.html_container">
+			<t t-foreach="docs" t-as="o">
+				<!-- Sécurisation de la langue lors de l'appel du document -->
+				<t t-call="adk_stock_request.report_adk_stock_request_document" t-lang="o.demandeur_id.lang or env.lang"/>
+			</t>
+		</t>
+	</template>
+</odoo>

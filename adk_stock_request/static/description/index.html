@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ADK Demande de Stock</title>
+</head>
+<body>
+
+<div align="center">
+<img src="icon.png" width="56" height="56" alt="ADK"><br>
+<h1>ADK Demande de Stock</h1>
+<p>Gestion des demandes de mouvement de stock interne dans Odoo 18 : circuit d'approbation, g&eacute;n&eacute;ration automatique des transferts SORTIE et R&Eacute;CEPTION, suivi en temps r&eacute;el.</p>
+<p><font size="2" color="#8a8189">Odoo 18 &nbsp;&middot;&nbsp; Circuit d'approbation &nbsp;&middot;&nbsp; Transferts SORTIE / R&Eacute;CEPTION &nbsp;&middot;&nbsp; Alerte retard &nbsp;&middot;&nbsp; Reporting par article</font></p>
+</div>
+
+<hr>
+
+<h2>R&ocirc;les utilisateurs</h2>
+<p>Le module ajoute deux r&ocirc;les d'acc&egrave;s. V&eacute;rifiez qu'ils correspondent &agrave; l'organisation de votre &eacute;quipe avant la mise en production.</p>
+
+<h3>Utilisateur Demande Stock</h3>
+<ul>
+<li>Cr&eacute;e ses propres demandes de stock et leurs lignes d'articles</li>
+<li>Peut les modifier et les soumettre tant qu'elles restent en Brouillon</li>
+<li>Peut annuler ou r&eacute;initialiser une demande encore au stade Brouillon ou Soumis</li>
+<li>Acc&egrave;s en lecture/&eacute;criture aux demandes et &agrave; leurs lignes (aucune suppression)</li>
+</ul>
+
+<h3>Manager Demande Stock</h3>
+<ul>
+<li>Cumule tous les droits Utilisateur, plus le droit Stock (Manager)</li>
+<li>Seul habilit&eacute; &agrave; Approuver une demande Soumise</li>
+<li>Seul habilit&eacute; &agrave; annuler ou r&eacute;initialiser une demande d&eacute;j&agrave; En cours</li>
+<li>Acc&egrave;s complet (cr&eacute;ation/modification/suppression) sur les demandes et leurs lignes</li>
+</ul>
+
+<hr>
+
+<h2>Le processus, &eacute;tape par &eacute;tape</h2>
+
+<h3>1. Cr&eacute;ation de la demande (Brouillon)</h3>
+<p>Le demandeur choisit l'entrep&ocirc;t source, l'emplacement de destination et la route, puis ajoute ses lignes d'articles avec la quantit&eacute; souhait&eacute;e.</p>
+<div align="center"><img src="screenshots/01-creation-brouillon.png" width="560" alt="Formulaire d'une demande de stock en Brouillon"></div>
+
+<br>
+
+<h3>2. Soumission (Soumis)</h3>
+<p>Le bouton &laquo;&nbsp;Soumettre&nbsp;&raquo; verrouille la demande et la transmet au Manager, seul habilit&eacute; &agrave; l'approuver.</p>
+<div align="center"><img src="screenshots/02-soumission.png" width="560" alt="Demande de stock au stade Soumis, bouton Approuver r&eacute;serv&eacute; au Manager"></div>
+
+<br>
+
+<h3>3. Approbation &mdash; g&eacute;n&eacute;ration des transferts</h3>
+<p>D&egrave;s l'approbation, la demande passe &laquo;&nbsp;En cours&nbsp;&raquo; et deux transferts sont cr&eacute;&eacute;s : un transfert interne (SORTIE) et une r&eacute;ception (R&Eacute;CEPTION).</p>
+<div align="center"><img src="screenshots/03-approbation-transferts.png" width="560" alt="Demande En cours juste apr&egrave;s approbation, transferts Sortie et R&eacute;ception cr&eacute;&eacute;s"></div>
+
+<br>
+
+<h3>4. Suivi SORTIE / R&Eacute;CEPTION</h3>
+<p>La R&Eacute;CEPTION reste &laquo;&nbsp;En attente de la sortie&nbsp;&raquo; tant que la SORTIE n'est pas Termin&eacute;e : les deux statuts n'avancent jamais en m&ecirc;me temps.</p>
+<div align="center"><img src="screenshots/04-suivi-sortie-reception.png" width="560" alt="Suivi d'une demande En cours : SORTIE Termin&eacute;e, R&Eacute;CEPTION encore en attente"></div>
+
+<br>
+
+<h3>5. Liste des demandes</h3>
+<p>Une vue liste centralise toutes les demandes, filtrable et regroupable comme n'importe quelle liste Odoo.</p>
+<div align="center"><img src="screenshots/05-liste-demandes.png" width="560" alt="Liste des demandes de stock"></div>
+
+<br>
+
+<h3>6. Tableau de bord par article</h3>
+<p>Une vue kanban d&eacute;di&eacute;e regroupe les demandes par article, avec les quantit&eacute;s demand&eacute;e, sortie et re&ccedil;ue, et la disponibilit&eacute; en stock.</p>
+<div align="center"><img src="screenshots/06-tableau-bord-article.png" width="560" alt="Tableau de bord kanban par article"></div>
+
+<br>
+
+<h3>7. Analyse crois&eacute;e</h3>
+<p>La vue pivot croise articles et p&eacute;riodes pour suivre les quantit&eacute;s demand&eacute;es, sorties et re&ccedil;ues dans le temps.</p>
+<div align="center"><img src="screenshots/07-analyse-pivot.png" width="560" alt="Tableau crois&eacute; dynamique des quantit&eacute;s par article et par mois"></div>
+
+<hr>
+
+<h2>Cycle de vie d'une demande</h2>
+<p>Termin&eacute; s'obtient automatiquement, sans bouton manuel, d&egrave;s que les deux transferts sont valid&eacute;s.</p>
+<div align="center"><img src="diagrams/cycle-flow.png" width="480" alt="Sch&eacute;ma du cycle de vie : Brouillon, Soumis, En cours, Termin&eacute;, avec r&eacute;initialisations et annulation possibles"></div>
+
+<ul>
+<li><b>Brouillon</b> &mdash; cr&eacute;&eacute;e par le demandeur, tout reste modifiable</li>
+<li><b>Soumis</b> &mdash; en attente d'approbation par un Manager</li>
+<li><b>En cours</b> &mdash; les transferts SORTIE et R&Eacute;CEPTION existent ; la SORTIE passe &laquo;&nbsp;Pr&ecirc;t&nbsp;&raquo; d&egrave;s que la quantit&eacute; est r&eacute;serv&eacute;e en stock, sinon elle reste &laquo;&nbsp;En attente d'approvisionnement&nbsp;&raquo; ; la R&Eacute;CEPTION reste &laquo;&nbsp;En attente de la sortie&nbsp;&raquo; jusqu'&agrave; ce que la SORTIE soit Termin&eacute;e</li>
+<li><b>Termin&eacute;</b> &mdash; automatique d&egrave;s que les deux transferts sont valid&eacute;s ; demande clôtur&eacute;e</li>
+</ul>
+
+<p>Une demande peut aussi &ecirc;tre <b>annul&eacute;e</b> depuis Brouillon, Soumis ou En cours (par un Manager si des transferts existent d&eacute;j&agrave;, et seulement si aucun n'est encore valid&eacute;), puis remise en Brouillon si besoin. Une fois Termin&eacute;e, une demande n'est plus ni annulable ni r&eacute;initialisable.</p>
+
+<hr>
+
+<h2>Int&eacute;gration native avec l'application Stock</h2>
+<ul>
+<li>La SORTIE utilise le type &laquo;&nbsp;Transfert interne&nbsp;&raquo; de l'entrep&ocirc;t source, la R&Eacute;CEPTION le type &laquo;&nbsp;R&eacute;ceptions&nbsp;&raquo; de l'entrep&ocirc;t de destination : ce sont de vrais transferts Odoo standards</li>
+<li>Les boutons statistiques Transferts, Sortie et R&eacute;ception, sur la demande, ouvrent directement ces transferts</li>
+<li>Impossible de valider la R&Eacute;CEPTION tant que la SORTIE correspondante n'est pas Termin&eacute;e</li>
+<li>D&egrave;s que les deux transferts sont valid&eacute;s, la demande passe seule &agrave; Termin&eacute;</li>
+</ul>
+
+<hr>
+
+<h2>Fonctionnalit&eacute;s</h2>
+<ol>
+<li><b>Workflow contr&ocirc;l&eacute;</b> &mdash; Brouillon &rarr; Soumis &rarr; En cours &rarr; Termin&eacute;, avec annulation et r&eacute;initialisation encadr&eacute;es par les r&ocirc;les</li>
+<li><b>Double transfert automatique</b> &mdash; chaque demande approuv&eacute;e cr&eacute;e exactement une SORTIE et une R&Eacute;CEPTION, jamais plus</li>
+<li><b>Validation s&eacute;quentielle</b> &mdash; la R&Eacute;CEPTION reste bloqu&eacute;e tant que la SORTIE n'est pas Termin&eacute;e</li>
+<li><b>Suivi en temps r&eacute;el</b> &mdash; statuts Pr&ecirc;t / En attente / Termin&eacute; par ligne et par demande</li>
+<li><b>Alerte retard</b> &mdash; mise en &eacute;vidence et filtre d&eacute;di&eacute; d&egrave;s que la date pr&eacute;vue est d&eacute;pass&eacute;e</li>
+<li><b>Reporting</b> &mdash; tableau de bord par article, kanban, liste, graphique, pivot et calendrier</li>
+</ol>
+
+<p>Module 100% natif Odoo 18, construit sur les applications Stock, Discuss (mail) et UdM (uom), sans d&eacute;pendance externe.</p>
+
+<hr>
+
+<div align="center">
+<font size="2" color="#8a8189">D&eacute;velopp&eacute; par Dev KAMBEU HENANG ANGE DUVAL &nbsp;&middot;&nbsp; duvalkambeu61@gmail.com</font>
+</div>
+
+</body>
+</html>

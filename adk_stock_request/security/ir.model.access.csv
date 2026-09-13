@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_adk_stock_request_user,adk.stock.request.user,model_adk_stock_request_order,group_adk_stock_request_user,1,1,1,0
+access_adk_stock_request_line_user,adk.stock.request.line.user,model_adk_stock_request_line,group_adk_stock_request_user,1,1,1,0
+
+access_adk_stock_request_manager,adk.stock.request.manager,model_adk_stock_request_order,group_adk_stock_request_manager,1,1,1,1
+access_adk_stock_request_line_manager,adk.stock.request.line.manager,model_adk_stock_request_line,group_adk_stock_request_manager,1,1,1,1

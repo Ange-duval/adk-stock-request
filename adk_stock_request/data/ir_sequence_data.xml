@@ -1,0 +1,11 @@
+<odoo>
+    <data noupdate="1">
+        <record id="seq_adk_stock_request_order" model="ir.sequence">
+            <field name="name">Séquence ADK Stock</field>
+            <field name="code">adk.stock.request.order</field>
+            <field name="prefix">SRO/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

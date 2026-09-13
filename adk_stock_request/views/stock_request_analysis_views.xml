@@ -1,0 +1,81 @@
+<odoo>
+
+    <!-- Vue Recherche (filtres/regroupements communs) -->
+    <record id="view_adk_sro_search" model="ir.ui.view">
+        <field name="name">adk.stock.request.order.search</field>
+        <field name="model">adk.stock.request.order</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="demandeur_id"/>
+                <field name="warehouse_id"/>
+                <field name="location_id"/>
+                <filter string="Brouillon" name="filter_draft" domain="[('state','=','draft')]"/>
+                <filter string="Soumis" name="filter_submitted" domain="[('state','=','submitted')]"/>
+                <filter string="En cours" name="filter_in_progress" domain="[('state','=','in_progress')]"/>
+                <filter string="Terminé" name="filter_done" domain="[('state','=','done')]"/>
+                <filter string="Annulé" name="filter_cancelled" domain="[('state','=','cancelled')]"/>
+                <filter string="En retard" name="filter_late" domain="[('is_late','=',True)]"/>
+                <separator/>
+                <filter string="Date prévue" name="filter_expected_date" date="expected_date"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Demandeur" name="group_demandeur" context="{'group_by': 'demandeur_id'}"/>
+                    <filter string="Entrepôt" name="group_warehouse" context="{'group_by': 'warehouse_id'}"/>
+                    <filter string="Date prévue" name="group_expected_date" context="{'group_by': 'expected_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vue Graphique -->
+    <record id="view_adk_sro_graph" model="ir.ui.view">
+        <field name="name">adk.stock.request.order.graph</field>
+        <field name="model">adk.stock.request.order</field>
+        <field name="arch" type="xml">
+            <graph string="Analyse des demandes de stock" type="bar" sample="1">
+                <field name="warehouse_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="total_qty_requested" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Vue Pivot -->
+    <record id="view_adk_sro_pivot" model="ir.ui.view">
+        <field name="name">adk.stock.request.order.pivot</field>
+        <field name="model">adk.stock.request.order</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse des demandes de stock" sample="1">
+                <field name="warehouse_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="total_qty_requested" type="measure"/>
+                <field name="total_qty_done" type="measure"/>
+                <field name="line_count" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Vue Calendrier -->
+    <record id="view_adk_sro_calendar" model="ir.ui.view">
+        <field name="name">adk.stock.request.order.calendar</field>
+        <field name="model">adk.stock.request.order</field>
+        <field name="arch" type="xml">
+            <calendar string="Calendrier des demandes" date_start="expected_date" color="warehouse_id" mode="month">
+                <field name="name"/>
+                <field name="demandeur_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Action Analyse (graph + pivot + calendar) -->
+    <record id="action_adk_sro_analysis" model="ir.actions.act_window">
+        <field name="name">Analyse des demandes</field>
+        <field name="res_model">adk.stock.request.order</field>
+        <field name="view_mode">graph,pivot,calendar,list,form</field>
+        <field name="search_view_id" ref="view_adk_sro_search"/>
+        <field name="context">{'search_default_group_state': 1, 'search_disable_custom_filters': True}</field>
+    </record>
+
+</odoo>

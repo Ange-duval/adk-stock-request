@@ -1,0 +1,133 @@
+<odoo>
+	<!-- Vue Liste -->
+	<record id="view_adk_sro_list" model="ir.ui.view">
+		<field name="name">adk.stock.request.order.list</field>
+		<field name="model">adk.stock.request.order</field>
+		<field name="arch" type="xml">
+			<list decoration-danger="is_late == True"
+				decoration-info="state == 'draft'"
+				decoration-warning="state == 'submitted'"
+				decoration-success="state == 'done'"
+				decoration-muted="state == 'cancelled'">
+				<field name="name"/>
+				<field name="demandeur_id"/>
+				<field name="warehouse_id"/>
+				<field name="location_id"/>
+				<field name="expected_date"/>
+				<field name="progress" widget="progressbar" optional="show"/>
+				<field name="state" widget="badge"/>
+				<field name="is_late" column_invisible="1"/>
+			</list>
+		</field>
+	</record>
+
+	<!-- Vue Formulaire -->
+	<record id="view_adk_sro_form" model="ir.ui.view">
+		<field name="name">adk.stock.request.order.form</field>
+		<field name="model">adk.stock.request.order</field>
+		<field name="arch" type="xml">
+			<form>
+				<header>
+					<button name="action_submit" string="Soumettre" type="object" invisible="state != 'draft'" class="btn-primary"/>
+					<button name="action_confirm" string="Approuver" type="object" invisible="state != 'submitted'" class="btn-success" groups="adk_stock_request.group_adk_stock_request_manager"/>
+					<button name="action_reset_to_draft" string="Réinitialiser" type="object" invisible="state not in ('submitted', 'in_progress', 'cancelled')"/>
+					<button name="action_cancel" string="Annuler" type="object" invisible="state not in ('draft', 'submitted', 'in_progress')" confirm="Annuler cette demande de stock ?"/>
+					<button name="%(action_report_adk_stock_request)d" string="Imprimer" type="action" invisible="state == 'draft'" class="btn-secondary"/>
+					<field name="state" widget="statusbar" statusbar_visible="draft,submitted,in_progress,done"/>
+				</header>
+				<sheet>
+<div class="oe_button_box" name="button_box">
+					<button name="action_view_picking" type="object" class="oe_stat_button" icon="fa-truck" invisible="picking_count == 0">
+						<field name="picking_count" widget="statinfo" string="Transferts"/>
+					</button>
+					<button name="action_view_sortie" type="object" class="oe_stat_button" icon="fa-sign-out" invisible="sortie_picking_count == 0">
+						<field name="sortie_picking_count" widget="statinfo" string="Sortie"/>
+					</button>
+					<button name="action_view_reception" type="object" class="oe_stat_button" icon="fa-sign-in" invisible="reception_picking_count == 0">
+						<field name="reception_picking_count" widget="statinfo" string="Réception"/>
+					</button>
+					<button name="action_view_lines" type="object" class="oe_stat_button" icon="fa-list" invisible="line_count == 0">
+						<field name="line_count" widget="statinfo" string="Articles"/>
+					</button>
+				</div>
+					<widget name="web_ribbon" title="En retard" bg_color="text-bg-danger" invisible="not is_late"/>
+					<div class="oe_title">
+						<h1>
+							<field name="name" readonly="1"/>
+						</h1>
+					</div>
+					<group>
+						<group>
+							<field name="expected_date"/>
+							<field name="request_date"/>
+							<field name="shipping_policy"/>
+							<field name="demandeur_id" widget="many2one_avatar_user"/>
+							<field name="company_id" groups="base.group_multi_company"/>
+						</group>
+						<group>
+							<field name="warehouse_id"/>
+							<field name="location_id"/>
+							<field name="route_id"/>
+							<field name="procurement_group_id"/>
+							<field name="progress" widget="progressbar"/>
+							<label for="sortie_status" string="Transfert SORTIE" invisible="not sortie_status"/>
+							<div invisible="not sortie_status">
+<field name="sortie_status" widget="badge"
+								   decoration-success="sortie_status == 'pret'"
+								   decoration-warning="sortie_status == 'en_attente'"
+								   decoration-muted="sortie_status == 'done'"/>
+							</div>
+							<label for="reception_status" string="Transfert RÉCEPTION" invisible="not reception_status"/>
+							<div invisible="not reception_status">
+<field name="reception_status" widget="badge"
+								   decoration-success="reception_status == 'pret'"
+								   decoration-warning="reception_status == 'en_attente'"
+								   decoration-muted="reception_status == 'done'"/>
+							</div>
+						</group>
+					</group>
+					<notebook>
+						<page string="Articles" name="lines">
+							<field name="line_ids">
+								<list editable="bottom">
+									<field name="product_id"/>
+									<field name="product_uom_id" groups="uom.group_uom"/>
+									<field name="route_id"/>
+									<field name="qty"/>
+									<field name="qty_done" readonly="1"/>
+									<field name="sortie_status" readonly="1" string="Sortie" widget="badge"
+										   decoration-success="sortie_status == 'pret'"
+										   decoration-warning="sortie_status == 'en_attente'"
+										   decoration-muted="sortie_status == 'done'"/>
+									<field name="reception_status" readonly="1" string="Réception" widget="badge"
+										   decoration-success="reception_status == 'pret'"
+										   decoration-warning="reception_status == 'en_attente'"
+										   decoration-muted="reception_status == 'done'"/>
+									<field name="status" widget="badge" decoration-success="status == 'done'" column_invisible="1"/>
+								</list>
+							</field>
+						</page>
+						<page string="Notes" name="notes">
+							<field name="description" placeholder="Ajouter une note interne..."/>
+						</page>
+					</notebook>
+				</sheet>
+				<!-- Utilisation de la balise simplifiée comme dans ton exemple -->
+				<chatter/>
+			</form>
+		</field>
+	</record>
+
+	<!-- Action -->
+	<record id="action_adk_sro" model="ir.actions.act_window">
+		<field name="name">Demandes de stock</field>
+		<field name="res_model">adk.stock.request.order</field>
+		<field name="view_mode">list,kanban,form,graph,pivot,calendar</field>
+		<field name="search_view_id" ref="view_adk_sro_search"/>
+		<field name="help" type="html">
+			<p class="o_view_nocontent_smiling_face">
+				Créez votre première demande de stock
+			</p>
+		</field>
+	</record>
+</odoo>

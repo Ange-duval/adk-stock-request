@@ -1,0 +1,35 @@
+<odoo>
+
+	<!-- Catégorie de droits dédiée à la Demande de Stock -->
+	<record id="module_category_adk_stock_request" model="ir.module.category">
+		<field name="name">Demande de Stock</field>
+		<field name="sequence">10</field>
+	</record>
+
+	<!-- ========================= -->
+	<!-- GROUPE UTILISATEUR -->
+	<!-- ========================= -->
+	<!-- Implique le groupe natif minimal pour pouvoir consulter les transferts générés -->
+	<!-- depuis une demande de stock. -->
+
+	<record id="group_adk_stock_request_user" model="res.groups">
+		<field name="name">Utilisateur Demande Stock</field>
+		<field name="category_id" ref="module_category_adk_stock_request"/>
+		<field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
+	</record>
+
+	<!-- ========================= -->
+	<!-- GROUPE MANAGER -->
+	<!-- ========================= -->
+
+	<record id="group_adk_stock_request_manager" model="res.groups">
+		<field name="name">Manager Demande Stock</field>
+
+		<field name="implied_ids"
+               eval="[(4, ref('group_adk_stock_request_user')), (4, ref('stock.group_stock_manager'))]"/>
+
+		<field name="category_id"
+               ref="module_category_adk_stock_request"/>
+	</record>
+
+</odoo>

@@ -1,0 +1,12 @@
+<odoo>
+    <record id="action_report_adk_stock_request" model="ir.actions.report">
+        <field name="name">Demande de Stock</field>
+        <field name="model">adk.stock.request.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">adk_stock_request.report_adk_stock_request</field>
+        <field name="report_file">adk_stock_request.report_adk_stock_request</field>
+        <field name="print_report_name">'Demande de Stock - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_adk_stock_request_order"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
