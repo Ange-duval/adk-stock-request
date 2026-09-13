@@ -14,7 +14,7 @@ de mouvement de stock internes, enrichi par ADK avec :
 * Un rapport PDF imprimable de la demande de stock
 * Une traçabilité complète (chatter, activités, suivi des champs)
 """,
-    'author': 'Dev KAMBEU HENANG ANGE DUVAL',
+    'author': 'KAMBEU HENANG ANGE DUVAL',
     'company': 'ADK',
     'email': 'duvalkambeu61@gmail.com',
     'depends': ['stock', 'mail', 'uom'],
