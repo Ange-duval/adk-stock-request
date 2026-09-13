@@ -1,5 +1,5 @@
 {
-    'name': 'ADK Demande de Stock Officiel',
+    'name': 'ADK Demande de Stock',
     'version': '18.0.9.0',
     'category': 'Demande de Stock',
     'summary': 'Gestion complète des flux de stock ADK avec traçabilité, tableau de bord et rapports intégrés',
@@ -14,7 +14,7 @@ de mouvement de stock internes, enrichi par ADK avec :
 * Un rapport PDF imprimable de la demande de stock
 * Une traçabilité complète (chatter, activités, suivi des champs)
 """,
-    'author': 'KAMBEU HENANG ANGE DUVAL',
+    'author': 'Kambeu Henang Ange Duval',
     'company': 'ADK',
     'email': 'duvalkambeu61@gmail.com',
     'depends': ['stock', 'mail', 'uom'],
